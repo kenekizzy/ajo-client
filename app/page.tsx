@@ -1,102 +1,169 @@
-import Image from "next/image";
 
-export default function Home() {
+'use client';
+
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/stores/auth-context";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Hero, Features, Testimonials, ClientNavigation } from "@/components/landing";
+import { AuthLoading } from "@/components/ui/loading";
+
+// Navigation items for landing page
+const navigationItems = [
+  { label: "Features", href: "#features" },
+  { label: "Testimonials", href: "#testimonials" },
+  { label: "About", href: "#about" },
+];
+
+export default function LandingPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Redirect authenticated users to dashboard (Requirement 1.5)
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return <AuthLoading message="Loading..." />;
+  }
+
+  // Show loading while redirecting authenticated users
+  if (isAuthenticated) {
+    return <AuthLoading message="Redirecting to dashboard..." />;
+  }
+
+  const handleGetStarted = () => {
+    router.push("/register");
+  };
+
+  const handleLogin = () => {
+    router.push("/login");
+  };
+
+  const handleSmoothScroll = (href: string) => {
+    if (href.startsWith("#")) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <ClientNavigation
+        navigationItems={navigationItems}
+        onGetStarted={handleGetStarted}
+        onLogin={handleLogin}
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <Hero onGetStarted={handleGetStarted} onLogin={handleLogin} />
+
+        {/* Features Section */}
+        <section id="features">
+          <Features />
+        </section>
+
+        {/* Testimonials Section */}
+        <section id="testimonials">
+          <Testimonials />
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="py-20 bg-ajo-primary text-ajo-primary-foreground">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+            <h2 className="text-3xl sm:text-4xl font-bold">
+              Ready to Start Your Savings Journey?
+            </h2>
+            <p className="text-lg opacity-90 max-w-2xl mx-auto">
+              Join thousands of people who are already building wealth together through traditional ajo savings. 
+              Start today and take control of your financial future.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                onClick={handleGetStarted}
+                size="lg"
+                variant="secondary"
+                className="bg-white text-ajo-primary hover:bg-white/90 px-8 py-3 text-lg font-semibold"
+              >
+                Create Your Account
+              </Button>
+              <Button 
+                onClick={handleLogin}
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-ajo-primary px-8 py-3 text-lg font-semibold"
+              >
+                Sign In
+              </Button>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="bg-ajo-secondary text-ajo-secondary-foreground py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Logo and description */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-ajo-primary rounded-lg flex items-center justify-center">
+                  <span className="text-ajo-primary-foreground font-bold text-lg">A</span>
+                </div>
+                <span className="text-xl font-bold">Ajo Loop</span>
+              </div>
+              <p className="text-sm opacity-80">
+                Building wealth together through traditional ajo savings. 
+                Trusted by thousands across Africa and beyond.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">Quick Links</h3>
+              <ul className="space-y-2 text-sm opacity-80">
+                <li><a href="#features" className="hover:opacity-100 transition-opacity">Features</a></li>
+                <li><a href="#testimonials" className="hover:opacity-100 transition-opacity">Testimonials</a></li>
+                <li><a href="/register" className="hover:opacity-100 transition-opacity">Get Started</a></li>
+                <li><a href="/login" className="hover:opacity-100 transition-opacity">Sign In</a></li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">Support</h3>
+              <ul className="space-y-2 text-sm opacity-80">
+                <li><a href="#" className="hover:opacity-100 transition-opacity">Help Center</a></li>
+                <li><a href="#" className="hover:opacity-100 transition-opacity">Contact Us</a></li>
+                <li><a href="#" className="hover:opacity-100 transition-opacity">Privacy Policy</a></li>
+                <li><a href="#" className="hover:opacity-100 transition-opacity">Terms of Service</a></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">Contact</h3>
+              <div className="space-y-2 text-sm opacity-80">
+                <p>support@ajoloop.com</p>
+                <p>+234 (0) 123 456 7890</p>
+                <p>Lagos, Nigeria</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm opacity-60">
+            <p>&copy; 2024 Ajo Loop. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
